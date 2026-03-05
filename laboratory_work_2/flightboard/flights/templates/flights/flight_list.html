@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Рейсы{% endblock %}
+
+{% block content %}
+  <h1 class="mb-3">Табло рейсов</h1>
+
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-sm-8">
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Поиск: номер рейса, авиакомпания, города, гейт">
+    </div>
+    <div class="col-sm-4">
+      <button class="btn btn-primary w-100" type="submit">Поиск</button>
+    </div>
+  </form>
+
+  <div class="list-group">
+    {% for flight in page_obj %}
+      <a class="list-group-item list-group-item-action" href="{% url 'flights:flight_detail' flight.pk %}">
+        <div class="d-flex justify-content-between">
+          <div>
+            <b>{{ flight.flight_number }}</b> — {{ flight.airline }} ({{ flight.get_flight_type_display }})
+            <div class="text-muted">
+              {{ flight.departure_city }} → {{ flight.arrival_city }} | Gate: {{ flight.gate }}
+            </div>
+          </div>
+          <div class="text-end">
+            <div>Вылет: {{ flight.departure_time|date:"d.m.Y H:i" }}</div>
+            <div>Прилёт: {{ flight.arrival_time|date:"d.m.Y H:i" }}</div>
+          </div>
+        </div>
+      </a>
+    {% empty %}
+      <div class="alert alert-warning">Ничего не найдено.</div>
+    {% endfor %}
+  </div>
+
+  {% include "flights/pagination.html" with page_obj=page_obj q=q %}
+{% endblock %}

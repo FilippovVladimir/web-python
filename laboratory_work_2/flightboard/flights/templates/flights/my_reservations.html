@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Мои брони{% endblock %}
+
+{% block content %}
+  <h1 class="mb-3">Мои бронирования</h1>
+
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-sm-8">
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Поиск: рейс, авиакомпания, место, билет">
+    </div>
+    <div class="col-sm-4">
+      <button class="btn btn-primary w-100" type="submit">Поиск</button>
+    </div>
+  </form>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Рейс</th>
+        <th>Место</th>
+        <th>Билет</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in page_obj %}
+        <tr>
+          <td><a href="{% url 'flights:flight_detail' r.flight.pk %}">{{ r.flight.flight_number }} — {{ r.flight.airline }}</a></td>
+          <td>{{ r.seat }}</td>
+          <td>{{ r.ticket_number|default:"—" }}</td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'flights:reserve_edit' r.pk %}">Редактировать</a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'flights:reserve_delete' r.pk %}">Удалить</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4" class="text-muted">Пока нет бронирований.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% include "flights/pagination.html" with page_obj=page_obj q=q %}
+{% endblock %}

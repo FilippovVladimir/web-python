@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Добавить отзыв{% endblock %}
+
+{% block content %}
+  <h1 class="mb-3">Добавить отзыв</h1>
+  <div class="mb-3 text-muted">
+    Рейс: <b>{{ flight.flight_number }}</b> — {{ flight.airline }}
+  </div>
+
+  <form method="post" class="card card-body" style="max-width: 720px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">Отправить</button>
+  </form>
+{% endblock %}

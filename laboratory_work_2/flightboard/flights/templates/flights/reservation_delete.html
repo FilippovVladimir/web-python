@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Удалить бронирование{% endblock %}
+
+{% block content %}
+  <h1 class="mb-3">Удалить бронирование?</h1>
+  <div class="card card-body" style="max-width: 620px;">
+    <p>Рейс: <b>{{ reservation.flight.flight_number }}</b></p>
+    <p>Место: <b>{{ reservation.seat }}</b></p>
+
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit">Удалить</button>
+      <a class="btn btn-secondary" href="{% url 'flights:my_reservations' %}">Отмена</a>
+    </form>
+  </div>
+{% endblock %}

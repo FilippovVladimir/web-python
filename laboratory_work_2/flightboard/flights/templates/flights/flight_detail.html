@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ flight.flight_number }}{% endblock %}
+
+{% block content %}
+  <h1 class="mb-2">{{ flight.flight_number }} — {{ flight.airline }}</h1>
+  <div class="text-muted mb-3">
+    {{ flight.departure_city }} → {{ flight.arrival_city }} |
+    {{ flight.get_flight_type_display }} |
+    Gate: {{ flight.gate }}
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Информация</h5>
+          <p class="mb-1"><b>Вылет:</b> {{ flight.departure_time|date:"d.m.Y H:i" }}</p>
+          <p class="mb-1"><b>Прилёт:</b> {{ flight.arrival_time|date:"d.m.Y H:i" }}</p>
+
+          {% if user.is_authenticated %}
+            <a class="btn btn-success mt-2" href="{% url 'flights:reserve_create' flight.pk %}">Забронировать место</a>
+          {% else %}
+            <div class="alert alert-secondary mt-2">Чтобы бронировать места — войдите в аккаунт.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-body">
+          <h5 class="card-title">Пассажиры рейса</h5>
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Пассажир</th>
+                <th>Место</th>
+                <th>Билет</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in passengers %}
+                <tr>
+                  <td>{{ r.user.username }}</td>
+                  <td>{{ r.seat }}</td>
+                  <td>{{ r.ticket_number|default:"—" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3" class="text-muted">Пока нет пассажиров.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <div class="text-muted small">* Номер билета администратор может заполнить в Django-admin.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Отзывы</h5>
+        {% if user.is_authenticated %}
+          <a class="btn btn-outline-primary btn-sm" href="{% url 'flights:review_create' flight.pk %}">Добавить отзыв</a>
+        {% endif %}
+      </div>
+
+      <div class="mt-2">
+        {% for rev in reviews %}
+          <div class="card mb-2">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div><b>{{ rev.author.username }}</b> — {{ rev.flight_date|date:"d.m.Y" }}</div>
+                <div>⭐ {{ rev.rating }}/10</div>
+              </div>
+              <div class="mt-2">{{ rev.text }}</div>
+              <div class="text-muted small mt-2">{{ rev.created_at|date:"d.m.Y H:i" }}</div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="alert alert-secondary mt-2">Отзывов пока нет.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
