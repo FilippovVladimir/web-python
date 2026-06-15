@@ -1,0 +1,75 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: time_manager
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  parser:
+    build:
+      context: ..
+      dockerfile: laboratory_work_7/parser/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/time_manager
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+
+  api:
+    build:
+      context: ..
+      dockerfile: laboratory_work_7/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/time_manager
+      PARSER_URL: http://parser:8000
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: docker-secret-key
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - parser
+      - redis
+
+  celery_worker:
+    build:
+      context: ..
+      dockerfile: laboratory_work_7/api/Dockerfile
+    command: celery -A app.celery_app.celery_app worker --loglevel=info
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/time_manager
+      PARSER_URL: http://parser:8000
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: docker-secret-key
+    depends_on:
+      - db
+      - parser
+      - redis
+
+  celery_beat:
+    build:
+      context: ..
+      dockerfile: laboratory_work_7/api/Dockerfile
+    command: celery -A app.celery_app.celery_app beat --loglevel=info
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/time_manager
+      PARSER_URL: http://parser:8000
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: docker-secret-key
+    depends_on:
+      - redis
+      - celery_worker
+
+volumes:
+  postgres_data:
