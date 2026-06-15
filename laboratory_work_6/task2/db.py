@@ -6,7 +6,7 @@ import psycopg
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/time_manager",
+    "postgresql://postgres:postgres@localhost:5433/time_manager",
 )
 
 
